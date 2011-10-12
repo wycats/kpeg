@@ -42,7 +42,16 @@ OptionParser.new do |o|
   o.on("-d", "--debug", "Debug parsing the file") do |v|
     options[:debug] = v
   end
+
+  o.on("-l", "--target-langauge LANGUAGE", "Specify a target output language") do |v|
+    options[:generator] = if v =~ /^j/
+      require "kpeg/javascript_generator"
+      KPeg::JavaScriptGenerator
+    end
+  end
 end.parse!
+
+options[:generator] ||= KPeg::CodeGenerator
 
 file = ARGV.shift
 
@@ -116,7 +125,7 @@ if options[:test]
 end
 
 
-cg = KPeg::CodeGenerator.new name, grammar
+cg = options[:generator].new name, grammar
 cg.standalone = options[:standalone]
 
 File.open new_path, "w" do |f|
