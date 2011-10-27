@@ -19,8 +19,25 @@ module KPeg
       @result = nil
       @failed_rule = nil
       @failing_rule_offset = -1
+      @debug_size = 0
 
       setup_foreign_grammar
+    end
+
+    def debug_size
+      "  " * @debug_size
+    end
+
+    def debug_indent
+      ret = debug_size
+      @debug_size += 1
+      ret
+    end
+
+    def debug_outdent
+      @debug_size -= 1
+      ret = debug_size
+      ret
     end
 
     # This is distinct from setup_parser so that a standalone parser
@@ -169,9 +186,32 @@ module KPeg
       end
     end
 
+    def round(size, elapsed)
+      if elapsed.zero?
+        "Infinity"
+      else
+        (size / elapsed).round
+      end
+    end
+
     def parse(rule=nil)
       if !rule
-        _root ? true : false
+        time = Time.now if @benchmark
+
+        ret = _root
+
+        if @benchmark
+          puts
+          size = @string.size
+          bps = round(size, Time.now - time)
+          puts "#{bps}bps"
+        end
+
+        if @pos != @string.size
+          puts failure_info
+        end
+
+        ret ? true : false
       else
         # This is not shared with code_generator.rb so this can be standalone
         method = rule.gsub("-","_hyphen_")
@@ -267,6 +307,13 @@ module KPeg
     end
 
     def apply(rule)
+      if @pos > 0 && @pos % 25 == 0
+        percent = ((@pos.to_f / @string.size) * 100)
+        dots = percent / 5
+        spaces = 20 - dots
+        print "[#{"." * dots}#{" " * spaces} #{"%8d" % @pos} of #{"%8d" % @string.size}\r"
+      end
+
       if m = @memoizations[rule][@pos]
         m.inc!
 

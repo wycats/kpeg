@@ -291,7 +291,7 @@ module KPeg
         code << indentify("@result = begin; ", indent)
         code << op.action << "; end\n"
         if @debug
-          code << indentify("puts \"   => \" #{op.action.dump} \" => \#{@result.inspect} \\n\"\n", indent)
+          code << indentify("puts \"\#{debug_size}=> \" #{op.action.dump} \" => \#{@result.inspect} \\n\"\n", indent)
         end
         code << indentify("_tmp = true\n", indent)
       when Collect
@@ -391,15 +391,16 @@ module KPeg
         end
 
         if @debug
-          code << "    puts \"START #{name} @ \#{show_pos}\\n\"\n"
+          code << "    puts \"\#{debug_size}START #{name} @ \#{show_pos}\\n\"\n"
+          code << "    debug_indent\n"
         end
 
         output_op code, rule.op
         if @debug
           code << "    if _tmp\n"
-          code << "      puts \"   OK #{name} @ \#{show_pos}\\n\"\n"
+          code << "      puts \"\#{debug_outdent}\e[32mOK\e[0m #{name} @ \#{show_pos}\\n\"\n"
           code << "    else\n"
-          code << "      puts \" FAIL #{name} @ \#{show_pos}\\n\"\n"
+          code << "      puts \"\#{debug_outdent}\e[31mFAIL\e[0m #{name} @ \#{show_pos}\\n\"\n"
           code << "    end\n"
         end
 

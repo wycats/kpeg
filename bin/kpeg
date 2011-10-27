@@ -125,7 +125,7 @@ if options[:test]
 end
 
 
-cg = options[:generator].new name, grammar
+cg = options[:generator].new name, grammar, options[:debug]
 cg.standalone = options[:standalone]
 
 File.open new_path, "w" do |f|
