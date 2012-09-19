@@ -20,6 +20,7 @@ module KPeg
       @failed_rule = nil
       @failing_rule_offset = -1
       @debug_size = 0
+      @active_path = []
 
       setup_foreign_grammar
     end
@@ -61,9 +62,9 @@ module KPeg
     def show_pos
       width = 10
       if @pos < width
-        "#{@pos} (\"#{@string[0,@pos]}\" @ \"#{@string[@pos,width]}\")"
+        "#{@pos} (\"#{@string[0,@pos].inspect}\" @ \"#{@string[@pos,width].inspect}\")"
       else
-        "#{@pos} (\"... #{@string[@pos - width, width]}\" @ \"#{@string[@pos,width]}\")"
+        "#{@pos} (\"... #{@string[@pos - width, width].inspect[1...-1]}\" @ \"#{@string[@pos,width].inspect[1...-1]}\")"
       end
     end
 
@@ -208,7 +209,7 @@ module KPeg
         end
 
         if @pos != @string.size
-          puts failure_info
+          raise_error
         end
 
         ret ? true : false
